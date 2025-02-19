@@ -14,12 +14,22 @@ def get_signature(nonce, payload, secret, timestamp):
     content = ':'.join([nonce, payload, secret, timestamp]).encode('utf-8')
     m = hashlib.sha1()
     m.update(content)
-    return m.hexdigest()
+    signature = m.hexdigest()
+
+    # 输出签名计算过程
+    print(f"Calculated signature: {signature}")
+
+    return signature
 
 
 def verify_signature(secret, data, signature, timestamp, nonce):
-    """ 验证请求签名 """
+    """验证请求签名"""
     expected_signature = get_signature(nonce, data, secret, timestamp)
+
+    # 输出验证过程
+    print(f"Expected signature: {expected_signature}")
+    print(f"Received signature: {signature}")
+
     return hmac.compare_digest(expected_signature, signature)
 
 
@@ -37,6 +47,7 @@ def webhook():
 
     # 验证签名
     if not verify_signature(SECRET_KEY, raw_data, received_signature, timestamp, nonce):
+        print("Signature verification failed")
         return jsonify({"status": "error", "message": "Invalid signature"}), 403
 
     # 解析 JSON 数据
